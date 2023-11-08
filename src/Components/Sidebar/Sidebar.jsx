@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react'
-import { IoReorderThreeOutline } from "react-icons/io5";
+import { RiLogoutCircleLine } from "react-icons/ri";
 import menu from "./SidebarConfig.js";
 import { useNavigate } from 'react-router-dom';
 import { useDisclosure } from '@chakra-ui/react';
 import CreatePostModal from '../Post/CreatePostModal.jsx';
 import SearchComponent from '../SearchComponent/SearchComponent.jsx';
+import { signOut } from 'firebase/auth';
+import { auth } from '../../firebase.js';
 
-export const Sidebar = () => {
+export const Sidebar = ({username, userId}) => {
   const [activeTab, setActiveTab] = useState("");
   const navigate = useNavigate();
   const {isOpen, onOpen, onClose} = useDisclosure();
@@ -55,13 +57,13 @@ export const Sidebar = () => {
             })}
           </div>
         </div>
-        <div className='flex items-center cursor-pointer pb-10'>
-          <IoReorderThreeOutline className='text-2xl'/>
-          {activeTab !== "Search" && <p className='ml-5'>More</p>}
+        <div onClick={async () => await signOut(auth)} className='flex items-center cursor-pointer pb-10'>
+          <RiLogoutCircleLine  className='text-2xl'/>
+          {activeTab !== "Search" && <p className='ml-5'>Logout</p>}
         </div>
       </div>
 
-      <CreatePostModal onClose={onClose} isOpen={isOpen} />
+      <CreatePostModal onClose={onClose} isOpen={isOpen} username={username} userId={userId} />
       {isSearchVisible && <SearchComponent />}
     </div>
   )

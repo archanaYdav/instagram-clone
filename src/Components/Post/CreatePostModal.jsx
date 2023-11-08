@@ -1,14 +1,19 @@
 import { Button, Modal, ModalBody, ModalContent, ModalOverlay } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { FaPhotoVideo } from 'react-icons/fa';
 import { GrEmoji } from 'react-icons/gr';
 import { GoLocation } from 'react-icons/go';
 import "./CreatePostModal.css";
+import { storage, db } from '../../firebase';
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import firebase from 'firebase/compat/app';
 
-export default function CreatePostModal({ onClose, isOpen }) {
+export default function CreatePostModal({ onClose, isOpen, username, userId}) {
     const [isDragOver, setIsDragOver] = useState(false);
-    const [file, setFile] = useState();
+    const [file, setFile] = useState(null);
     const [caption, setCaption] = useState("");
+    const [location, setLocation] = useState("");
+
 
     const handleDragOver = (e) => {
         e.preventDefault();
@@ -42,6 +47,48 @@ export default function CreatePostModal({ onClose, isOpen }) {
         setCaption(e.target.value);
     }
 
+    const handleUpload = () => {
+
+        if (file === null) {
+            setFile(null);
+            alert("File is not selected. Please select a file and try again");
+            return;
+        }
+
+        console.log(file);
+        const storageRef = ref(storage, `images/${file.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        uploadTask.on('state_changed', (snapshot) => {
+            const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+
+        }, (error) => {
+            console.log(error);
+            alert(error.message);
+        }, () => {
+            // Handle successful uploads on complete
+            getDownloadURL(storageRef).then((downloadURL) => {
+                db.collection('posts').add({
+                    caption: caption,
+                    imageUrl: downloadURL,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    username: username,
+                    location: location
+                });
+
+                db.collection("users").doc(userId).collection("userDetails").add({
+                    url: downloadURL,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                  });
+
+                setFile(null);
+                setCaption("");
+                setLocation("");
+                alert("Your post has been shared.");
+            });
+        });
+    };
+
     return (
         <div>
             <Modal size={"4xl"} onClose={onClose} isOpen={isOpen} isCentered>
@@ -49,7 +96,7 @@ export default function CreatePostModal({ onClose, isOpen }) {
                 <ModalContent>
                     <div className='flex justify-between items-center py-1 px-10 '>
                         <p>Create New Post</p>
-                        <Button variant={"ghost"} size={"sm"} colorScheme={"blue"}>Share</Button>
+                        <Button variant={"ghost"} size={"sm"} colorScheme={"blue"} onClick={handleUpload}>Share</Button>
                     </div>
                     <hr />
                     <ModalBody>
@@ -74,10 +121,10 @@ export default function CreatePostModal({ onClose, isOpen }) {
                             <div className='w-[50%]'>
                                 <div className='flex items-center px-2'>
                                     <img className="w-7 h-7 rounded-full" src='https://cdn.pixabay.com/photo/2023/10/12/14/41/town-8310950_1280.jpg' alt='fadf' />
-                                    <p className='font-semibold ml-4'>username</p>
+                                    <p className='font-semibold ml-4'>{username}</p>
                                 </div>
                                 <div className='px-2'>
-                                    <textarea onChange={handleCaptionChange} placeholder='Write a caption' className='captionInput' name="caption" rows="8"></textarea>
+                                    <textarea value={caption} onChange={handleCaptionChange} placeholder='Write a caption' className='captionInput' name="caption" rows="8"></textarea>
                                 </div>
                                 <div className='flex justify-between px-2'>
                                     <GrEmoji />
@@ -86,7 +133,7 @@ export default function CreatePostModal({ onClose, isOpen }) {
                                 <hr />
 
                                 <div className='p-2 flex justify-between items-center'>
-                                    <input className='locationInput' placeholder='location' name='location'/>
+                                    <input value={location} onChange={(e) => setLocation(e.target.value)} className='locationInput' placeholder='location' name='location' />
                                     <GoLocation />
                                 </div>
                                 <hr />

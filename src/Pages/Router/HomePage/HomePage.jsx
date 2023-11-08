@@ -1,10 +1,22 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import StoryCircle from '../../../Components/Story/StoryCircle';
 import HomeRight from '../../../Components/HomeRight/HomeRight';
 import Post from '../../../Components/Post/Post';
+import {  db } from "../../../firebase";
 
-export const HomePage = () => {
-  
+export const HomePage = ({name, username}) => {
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    db.collection("posts").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+
+      setPosts(snapshot.docs.map(doc => ({
+        id: doc.id,
+        post: doc.data()
+      })));
+    })
+  }, []);
+
   return (
     <div>
       <div className='flex mt-10 justify-center w-[100%]'>
@@ -13,11 +25,11 @@ export const HomePage = () => {
             {[1,1,1,1].map((item) => <StoryCircle />)}
           </div>
           <div className="space-y-10 w-full mt-10">
-            {[1,1,1].map((item) => <Post />)}
+            {posts.map(({id, post}) => <Post key={id} username={post.username} imageUrl={post.imageUrl} location={post.location}/>)}
           </div>
         </div>
         <div className='w-[27%]'>
-          <HomeRight />
+          <HomeRight name={name} username={username} />
         </div>
       </div>
       

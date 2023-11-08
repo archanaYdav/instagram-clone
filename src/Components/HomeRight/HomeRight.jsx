@@ -1,7 +1,8 @@
 import React from 'react'
-import SuggestionCard from './SuggestionCard'
+import SuggestionCard from './SuggestionCard';
 
-export default function HomeRight() {
+export default function HomeRight({username, name}) {
+
   return (
     <div className=''>
       <div>
@@ -11,8 +12,8 @@ export default function HomeRight() {
               <img className='w-12 h-12 rounded-full' src="https://cdn.pixabay.com/photo/2023/10/12/14/41/town-8310950_1280.jpg" alt="asaf" />
             </div>
             <div className='ml-3'>
-              <p>Full Name</p>
-              <p className="opacity-70">username</p>
+              <p>{name}</p>
+              <p className="opacity-70">{username}</p>
             </div>
           </div>
 

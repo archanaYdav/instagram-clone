@@ -8,7 +8,7 @@ import CommentModal from '../Comments/CommentModal';
 import { useDisclosure } from '@chakra-ui/react';
 
 
-export default function Post() {
+export default function Post({username, imageUrl, location}) {
     const [showDropdown, setShowDropdown] = useState(false);
     const [isPostLiked, setIsPostLiked] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
@@ -37,8 +37,8 @@ export default function Post() {
                     <div className='flex items-center'>
                         <img className='h-12 w-12 rounded-full' src='https://cdn.pixabay.com/photo/2023/10/13/15/38/butterfly-8313010_640.jpg' alt='' />
                         <div className='pl-2'>
-                            <p className='font-semibold text-sm'>username</p>
-                            <p className='font-thin tesxt-sm'>location</p>
+                            <p className='font-semibold text-sm'>{username}</p>
+                            {location !== "" ? <p className='font-thin tesxt-sm'>{location}</p> : null}
                         </div>
                     </div>
                     <div className='dropdown'>
@@ -50,7 +50,7 @@ export default function Post() {
                 </div>
                 
                 <div>
-                    <img className='w-full' src='https://cdn.pixabay.com/photo/2023/10/12/14/41/town-8310950_1280.jpg' alt='a girl' />
+                    <img className='w-full' src={imageUrl} alt='a girl' />
                 </div>
 
                 <div className='flex justify-between items-center w-full px-5 py-4'>

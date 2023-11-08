@@ -1,10 +1,24 @@
 import React from 'react'
 import IMG from "../../../Assets/instaimage.jpg";
-// import { db, auth } from "./firebase.js";
-// import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut, updateProfile } from 'firebase/auth';
+import { auth } from '../../../firebase';
+import { signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
 
 
-export default function Login() {
+
+export default function Login({ email, setEmail, password, setPassword }) {
+
+  const signIn = async (e) => {
+    e.preventDefault();
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+    }
+    catch (error) {
+      console.log(error);
+      alert(error.message);
+    }
+  }
+
   return (
     <div>
       <div className='flex items-center'>
@@ -17,9 +31,11 @@ export default function Login() {
             <img className='w-40 ' src='https://i.imgur.com/zqpwkLQ.png' alt='insta logo' />
           </div>
           <form>
-            <input type='email' placeholder='email' className='w-full border border-gray-300 outline-none p-2 rounded-md text-sm' />
-            <input type='password' placeholder='Password' className='w-full border border-gray-300 outline-none p-2 my-2 rounded-md text-sm' />
-            <button className='w-full my-2 py-2 bg-blue-500 text-white border rounded-md font-semibold'>Log in</button>
+            <input value={email}
+              onChange={(e) => setEmail(e.target.value)} type='email' placeholder='email address' className='w-full border border-gray-300 outline-none p-2 rounded-md text-sm' />
+            <input value={password}
+              onChange={(e) => setPassword(e.target.value)} type='password' placeholder='Password' className='w-full border border-gray-300 outline-none p-2 my-2 rounded-md text-sm' />
+            <button onClick={signIn} className='w-full my-2 py-2 bg-blue-500 text-white border rounded-md font-semibold'>Log in</button>
           </form>
           <div>
             <p className="text-sm">Don't have an Account? <a href="/Signup" className='text-sm font-semibold text-blue-500 '>Sign up</a></p>
